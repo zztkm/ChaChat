@@ -42,6 +42,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import info.tsurutatakumi.sorachatlabo.ui.theme.SoraChatLaboTheme
+import info.tsurutatakumi.sorachatlabo.data.TermsAgreementManager
+import info.tsurutatakumi.sorachatlabo.ui.terms.TermsAgreementDialog
 import jp.shiguredo.sora.sdk.channel.SoraMediaChannel
 import jp.shiguredo.sora.sdk.channel.option.SoraMediaOption
 import jp.shiguredo.sora.sdk.error.SoraErrorReason
@@ -80,6 +82,10 @@ class TextChatActivity : ComponentActivity() {
     // チャットメッセージを保持するリスト
     private val chatMessages = mutableStateListOf<ChatMessage>()
 
+    // 利用規約への同意状態を管理
+    private lateinit var termsAgreementManager: TermsAgreementManager
+    private var showTermsDialog by mutableStateOf(false)
+
     enum class ConnectionState {
         DISCONNECTED,
         CONNECTING,
@@ -94,6 +100,9 @@ class TextChatActivity : ComponentActivity() {
         // debug 時以外は不要なログのため、本番用アプリでは無効化推奨
         SoraLogger.enabled = true
 
+        // 利用規約同意マネージャーの初期化
+        termsAgreementManager = TermsAgreementManager(applicationContext)
+
         val signalingUrl = intent.getStringExtra(EXTRA_SIGNALING_URL) ?: ""
         val channelId = intent.getStringExtra(EXTRA_CHANNEL_ID) ?: ""
 
@@ -103,18 +112,44 @@ class TextChatActivity : ComponentActivity() {
             return
         }
 
+        // 利用規約の同意状態を確認
+        showTermsDialog = !termsAgreementManager.hasAgreedToTerms()
+
         enableEdgeToEdge()
         setContent {
             SoraChatLaboTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // 利用規約ダイアログを表示
+                    if (showTermsDialog) {
+                        TermsAgreementDialog(
+                            onAccept = {
+                                termsAgreementManager.agreeToTerms()
+                                showTermsDialog = false
+                                // 同意したらSora接続を開始
+                                connectToSora(signalingUrl, channelId)
+                            },
+                            onDecline = {
+                                // 同意しなかった場合は何もせず、接続は開始しない
+                                showTermsDialog = false
+                            }
+                        )
+                    }
+
                     TextChatScreen(
                         signalingUrl = signalingUrl,
                         channelId = channelId,
                         connectionState = connectionState,
-                        onConnect = { connectToSora(signalingUrl, channelId) },
+                        onConnect = {
+                            // 利用規約に同意している場合のみ接続開始
+                            if (termsAgreementManager.hasAgreedToTerms()) {
+                                connectToSora(signalingUrl, channelId)
+                            }
+                        },
                         onDisconnect = { disconnectSora() },
                         messages = chatMessages,
                         onSendMessage = { message -> sendMessage(channelId, message) },
+                        showTermsAgreement = { showTermsDialog = true },
+                        termsAgreed = termsAgreementManager.hasAgreedToTerms(),
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -255,11 +290,16 @@ fun TextChatScreen(
     onDisconnect: () -> Unit,
     messages: List<ChatMessage>,
     onSendMessage: (String) -> Unit,
+    showTermsAgreement: () -> Unit,
+    termsAgreed: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // 接続状態を監視し、接続が必要な場合は LaunchedEffect で接続処理を呼び出す
-    LaunchedEffect(signalingUrl, channelId) {
-        onConnect()
+    // 接続状態を監視し、接続が必要かつ利用規約に同意している場合は
+    // LaunchedEffect で接続処理を呼び出す
+    LaunchedEffect(signalingUrl, channelId, termsAgreed) {
+        if (termsAgreed) {
+            onConnect()
+        }
     }
 
     // 画面が破棄されるときに接続を解除するための DisposableEffect
@@ -283,38 +323,67 @@ fun TextChatScreen(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "接続状態: ${connectionState.name}",
+                    text = when {
+                        !termsAgreed -> "利用規約への同意が必要です"
+                        else -> "接続状態: ${connectionState.name}"
+                    },
                     style = MaterialTheme.typography.bodyMedium
                 )
+
+                // 利用規約未同意の場合は同意ボタンを表示
+                if (!termsAgreed) {
+                    androidx.compose.material3.Button(
+                        onClick = showTermsAgreement,
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text("利用規約に同意する")
+                    }
+                }
             }
         }
 
-        // チャットメッセージ表示部分
-        val listState = rememberLazyListState()
+        // 利用規約に同意していない場合は接続前の説明を表示
+        if (!termsAgreed) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "チャットを利用するには利用規約に同意する必要があります。\n上の「利用規約に同意する」ボタンをタップしてください。",
+                    textAlign = TextAlign.Center
+                )
+            }
+        } else {
+            // チャットメッセージ表示部分
+            val listState = rememberLazyListState()
 
-        // 新しいメッセージが来たら自動スクロール
-        LaunchedEffect(messages.size) {
-            if (messages.isNotEmpty()) {
-                listState.animateScrollToItem(messages.size - 1)
+            // 新しいメッセージが来たら自動スクロール
+            LaunchedEffect(messages.size) {
+                if (messages.isNotEmpty()) {
+                    listState.animateScrollToItem(messages.size - 1)
+                }
+            }
+
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(horizontal = 16.dp)
+            ) {
+                items(messages) { message ->
+                    ChatMessageItem(message = message)
+                }
             }
         }
 
-        LazyColumn(
-            state = listState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(horizontal = 16.dp)
-        ) {
-            items(messages) { message ->
-                ChatMessageItem(message = message)
-            }
-        }
-
-        // メッセージ入力UI
+        // メッセージ入力UI (利用規約に同意済みかつ接続済みの場合のみ有効)
         MessageInputBar(
             onSendMessage = onSendMessage,
-            enabled = connectionState == TextChatActivity.ConnectionState.CONNECTED,
+            enabled = termsAgreed && connectionState == TextChatActivity.ConnectionState.CONNECTED,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(8.dp)
