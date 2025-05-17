@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
+import info.tsurutatakumi.sorachatlabo.data.TermsAgreementManager
 import info.tsurutatakumi.sorachatlabo.data.UserCredentialsManager
 import info.tsurutatakumi.sorachatlabo.ui.login.LoginScreen
+import info.tsurutatakumi.sorachatlabo.ui.terms.TermsAgreementDialog
 import info.tsurutatakumi.sorachatlabo.ui.theme.SoraChatLaboTheme
 
 class MainActivity : ComponentActivity() {
@@ -35,17 +37,42 @@ class MainActivity : ComponentActivity() {
     // UserCredentialsManagerをアクティビティのプロパティとして管理
     private lateinit var userCredentialsManager: UserCredentialsManager
 
+    // 利用規約への同意状態を管理
+    private lateinit var termsAgreementManager: TermsAgreementManager
+    private var showTermsDialog by mutableStateOf(false)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // UserCredentialsManagerのインスタンスを作成
         userCredentialsManager = UserCredentialsManager(applicationContext)
 
+        // 利用規約同意マネージャーの初期化
+        termsAgreementManager = TermsAgreementManager(applicationContext)
+
+        // 利用規約の同意状態を確認
+        showTermsDialog = !termsAgreementManager.hasAgreedToTerms()
+
         enableEdgeToEdge()
         setContent {
             SoraChatLaboTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // 利用規約ダイアログを表示
+                    if (showTermsDialog) {
+                        TermsAgreementDialog(
+                            onAccept = {
+                                termsAgreementManager.agreeToTerms()
+                                showTermsDialog = false
+                            },
+                            onDecline = {
+                                // 同意しなかった場合はアプリを終了
+                                finish()
+                            }
+                        )
+                    }
+
                     AppContent(
                         userCredentialsManager = userCredentialsManager,
+                        termsAgreedFlow = termsAgreementManager.termsAgreedFlow,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -57,11 +84,20 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppContent(
     userCredentialsManager: UserCredentialsManager,
+    termsAgreedFlow: kotlinx.coroutines.flow.StateFlow<Boolean>,
     modifier: Modifier = Modifier
 ) {
     // アプリの状態管理
     var isLoggedIn by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
+    // 利用規約への同意状態を取得
+    val termsAgreed by termsAgreedFlow.collectAsState()
+
+    // 利用規約に同意していない場合は何も表示しない
+    if (!termsAgreed) {
+        return
+    }
 
     // ログイン状態によって画面を切り替え
     if (isLoggedIn) {
