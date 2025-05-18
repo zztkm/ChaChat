@@ -14,13 +14,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.SoraChatLabo"
+        android:theme="@style/Theme.ChaChatTheme"
         tools:targetApi="31">
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.SoraChatLabo">
+            android:theme="@style/Theme.ChaChatTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,7 +30,7 @@
         <activity
             android:name=".TextChatActivity"
             android:exported="false"
-            android:theme="@style/Theme.SoraChatLabo" />
+            android:theme="@style/Theme.ChaChatTheme" />
     </application>
 
 </manifest>
