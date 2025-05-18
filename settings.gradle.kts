@@ -21,6 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SoraChatLabo"
+rootProject.name = "ChaChat"
 include(":app")
  

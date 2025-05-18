@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo
+package info.tsurutatakumi.chachat
 
 import android.os.Bundle
 import android.util.Log
@@ -41,9 +41,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import info.tsurutatakumi.sorachatlabo.ui.theme.SoraChatLaboTheme
-import info.tsurutatakumi.sorachatlabo.data.TermsAgreementManager
-import info.tsurutatakumi.sorachatlabo.ui.terms.TermsAgreementDialog
+import info.tsurutatakumi.chachat.ui.theme.ChaChatTheme
+import info.tsurutatakumi.chachat.data.TermsAgreementManager
+import info.tsurutatakumi.chachat.ui.terms.TermsAgreementDialog
 import jp.shiguredo.sora.sdk.channel.SoraMediaChannel
 import jp.shiguredo.sora.sdk.channel.option.SoraMediaOption
 import jp.shiguredo.sora.sdk.error.SoraErrorReason
@@ -117,7 +117,7 @@ class TextChatActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            SoraChatLaboTheme {
+            ChaChatTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // 利用規約ダイアログを表示
                     if (showTermsDialog) {

@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo.data
+package info.tsurutatakumi.chachat.data
 
 import android.content.Context
 import android.util.Log

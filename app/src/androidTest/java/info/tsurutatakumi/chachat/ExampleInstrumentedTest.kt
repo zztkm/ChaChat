@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo
+package info.tsurutatakumi.chachat
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

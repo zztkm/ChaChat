@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo.ui.login
+package info.tsurutatakumi.chachat.ui.login
 
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import info.tsurutatakumi.sorachatlabo.data.UserCredentialsManager
+import info.tsurutatakumi.chachat.data.UserCredentialsManager
 import kotlinx.coroutines.launch
 
 @Composable

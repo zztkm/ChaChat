@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo
+package info.tsurutatakumi.chachat
 
 import org.junit.Test
 

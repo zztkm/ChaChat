@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo.ui.theme
+package info.tsurutatakumi.chachat.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

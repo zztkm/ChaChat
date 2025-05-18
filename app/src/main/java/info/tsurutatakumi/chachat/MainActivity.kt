@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo
+package info.tsurutatakumi.chachat
 
 import android.app.Activity
 import android.content.Intent
@@ -24,11 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
-import info.tsurutatakumi.sorachatlabo.data.TermsAgreementManager
-import info.tsurutatakumi.sorachatlabo.data.UserCredentialsManager
-import info.tsurutatakumi.sorachatlabo.ui.login.LoginScreen
-import info.tsurutatakumi.sorachatlabo.ui.terms.TermsAgreementDialog
-import info.tsurutatakumi.sorachatlabo.ui.theme.SoraChatLaboTheme
+import info.tsurutatakumi.chachat.data.TermsAgreementManager
+import info.tsurutatakumi.chachat.data.UserCredentialsManager
+import info.tsurutatakumi.chachat.ui.login.LoginScreen
+import info.tsurutatakumi.chachat.ui.terms.TermsAgreementDialog
+import info.tsurutatakumi.chachat.ui.theme.ChaChatTheme
 
 class MainActivity : ComponentActivity() {
     companion object {
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent {
-            SoraChatLaboTheme {
+            ChaChatTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // 利用規約ダイアログを表示
                     if (showTermsDialog) {
@@ -165,7 +165,7 @@ fun MainScreen(
 @Composable
 fun LoginScreenPreview() {
     val dummyUserCredentialsManager = UserCredentialsManager(androidx.compose.ui.platform.LocalContext.current)
-    SoraChatLaboTheme {
+    ChaChatTheme {
         LoginScreen(
             onLoginSuccess = {},
             userCredentialsManager = dummyUserCredentialsManager,
@@ -178,7 +178,7 @@ fun LoginScreenPreview() {
 @Composable
 fun MainScreenPreview() {
     val dummyUserCredentialsManager = UserCredentialsManager(androidx.compose.ui.platform.LocalContext.current)
-    SoraChatLaboTheme {
+    ChaChatTheme {
         MainScreen(
             userCredentialsManager = dummyUserCredentialsManager
         )

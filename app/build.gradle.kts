@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "info.tsurutatakumi.sorachatlabo"
+    namespace = "info.tsurutatakumi.chachat"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "info.tsurutatakumi.sorachatlabo"
+        applicationId = "info.tsurutatakumi.chachat"
         minSdk = 24
         targetSdk = 35
         versionCode = 1

@@ -1,8 +1,7 @@
-package info.tsurutatakumi.sorachatlabo.data
+package info.tsurutatakumi.chachat.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 

@@ -1,4 +1,4 @@
-package info.tsurutatakumi.sorachatlabo.ui.theme
+package info.tsurutatakumi.chachat.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
